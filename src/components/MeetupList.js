@@ -6,7 +6,8 @@ import {
   Image,
   TouchableWithoutFeedback,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  ActivityIndicator
 } from 'react-native';
 
 
@@ -15,20 +16,28 @@ export default class MeetupList extends React.Component{
   constructor(props){
     super(props); 
     this.state = {
-      events: []
+      events: [],
+      isLoading: true,
     }
   }
   componentWillMount(){
-    this.setState({
-      events: [
-        { title: "Evento de Meetup 1", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
-        { title: "Evento de Meetup 2", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
-        { title: "Evento de Meetup 3", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
-      ]
-    })
+    setTimeout(() => {
+      this.setState({
+        events: [
+          { title: "Evento de Meetup 1", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
+          { title: "Evento de Meetup 2", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
+          { title: "Evento de Meetup 3", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
+        ],
+        isLoading: false,
+      })
+
+    }, 3000)
   }
   render(){
-    return(
+    return this.state.isLoading 
+    ? (<ActivityIndicator style={ styles.loader} size={100} color="red" />)
+    : (
+
       //<Text style={styles.title}>HOLA</Text>
       <ScrollView style={styles.container}>
         {this.state.events.map((event, i) => (
@@ -81,5 +90,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold'
+  },
+  loader:{
+    marginTop: 100
   }
 });
