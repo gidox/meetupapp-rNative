@@ -9,6 +9,7 @@ import {
   Dimensions,
   ActivityIndicator
 } from 'react-native';
+import { navigationOptions } from '../config/navOptions';  
 
 
 
@@ -20,13 +21,19 @@ export default class MeetupList extends React.Component{
       isLoading: true,
     }
   }
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Meetup',
+    ...navigationOptions  
+
+
+  }); 
   componentWillMount(){
     setTimeout(() => {
       this.setState({
         events: [
-          { title: "Evento de Meetup 1", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
-          { title: "Evento de Meetup 2", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
-          { title: "Evento de Meetup 3", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
+          { id: 1,title: "Evento de Meetup 1", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
+          { id: 2,title: "Evento de Meetup 2", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
+          { id: 3,title: "Evento de Meetup 3", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'},
         ],
         isLoading: false,
       })
@@ -34,6 +41,7 @@ export default class MeetupList extends React.Component{
     }, 3000)
   }
   render(){
+    const { navigation } = this.props;
     return this.state.isLoading 
     ? (<ActivityIndicator style={ styles.loader} size={100} color="red" />)
     : (
@@ -43,7 +51,10 @@ export default class MeetupList extends React.Component{
         {this.state.events.map((event, i) => (
           <TouchableWithoutFeedback
             key={i}
-            onPress={() => null}
+            onPress={() => navigation.navigate('Detail', {
+              group: event.groupName,
+              id: event.id
+            })}
           >
             <View style={styles.card}>
               <Image style={styles.image} source={{ uri: event.groupImage }}/>

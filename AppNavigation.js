@@ -1,16 +1,10 @@
-import React from 'react';
-import {
-  View,
-  Text,
+import { StackNavigator } from 'react-navigation';
+import MeetupList from './src/components/MeetupList';
+import MeetupDetail from './src/components/MeetupDetail';
 
-} from 'react-native';
-export default class AppNavigation extends React.Component{
-  render() {
-    return (
-      <View>
-        <Text> AppNavigation </Text>
-      </View>
-
-    );
-  }
-}
+const AppNavigation = StackNavigator({
+  Home: { screen: MeetupList },
+  Detail: { screen: MeetupDetail },
+  
+})
+export default AppNavigation;
