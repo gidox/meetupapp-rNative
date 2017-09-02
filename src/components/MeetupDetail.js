@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { navigationOptions } from '../config/navOptions';  
-
-
+import { db, auth } from '../config/firebase';
+import moment from 'moment';
+import 'moment/locale/es';
 
 export default class MeetupDetail extends React.Component{
   constructor(props){
@@ -22,11 +23,41 @@ export default class MeetupDetail extends React.Component{
   }
 
   componentWillMount() {
-    this.setState({
-      event: { id: 1,title: "Evento de Meetup 1", groupImage: 'https://secure.meetupstatic.com/photo_api/event/rx308x180/cpt/cr308x180/ql90/sgb54c13bc46/463140336.jpeg', groupName: 'Reactjs Madrid'}
-    });
+    const { navigation } = this.props;
+    moment().locale('es');
+    db.ref(`/events/${navigation.state.params.id}`)
+      .once('value', snapshot => {
+        this.setState({
+          event: snapshot.val(),
+          isLoading: false,
+          
+        })
+      })
+    db.ref(`/eventAttendees/${navigation.state.params.id}`)
+      .on('child_added', snapshot => {
+        this.setState({ assistants: this.state.assistants.concat(snapshot.val())})
+      })
+    
   }
+  componentWillUnMount() {
+    const { navigation } = this.props;
+    db.ref(`/eventAttendees/${navigation.state.params.id}`).off();
+    db.ref(`/eventAttendees/`).off();
+    
+  }
+  booking() {
+    let userId = auth.currentUser.uid;
+    let eventId = this.props.navigation.state.params.id;
 
+    db.ref(`/users/${userId}`)
+      .once('value', snapshot => {
+        const { email, uid, avatar } = snapshot.val();
+        db.ref('/eventAttendees')
+          .child(eventId)
+          .child(userId)
+          .set({ email, uid, avatar })
+      })
+  }
   static navigationOptions = ({ navigation }) => ({
     title: `Evento de ${navigation.state.params.group}`,
     ...navigationOptions
@@ -40,8 +71,8 @@ export default class MeetupDetail extends React.Component{
         <View style={styles.info}>
           <Icon style={styles.infoIcon} name="calendar-o" size={20} color="grey" />
           <View>
-            <Text style={styles.infoText}>{this.state.event.date}</Text>
-            <Text style={styles.infoSubText}>{this.state.event.date}</Text>
+            <Text style={styles.infoText}>{moment(this.state.event.date).fromNow()}</Text>
+            <Text style={styles.infoSubText}>{moment(this.state.event.date).format('dddd, DD MMMM')}</Text>
           </View>
         </View>
         <View style={styles.info}>
@@ -51,8 +82,15 @@ export default class MeetupDetail extends React.Component{
             <Text style={styles.infoSubtext}>{this.state.event.locationAddress}</Text>
           </View>
         </View>
+        {this.state.assistants.length > 0 && (
+          <View style={styles.info}>
+            {this.state.assistants.map((attendee, i) => (
+              <Image key={i} style={styles.imageAvatar} source={{ uri: attendee.avatar }} />
+            ))}
+          </View>
+        )}
         <View style={styles.info}>
-          <TouchableHighlight style={styles.rsvpBtn} onPress={() => null}>
+          <TouchableHighlight style={styles.rsvpBtn} onPress={() => this.booking()}>
             <View>
               <Text style={styles.rsvpText}>Apuntarse</Text>
             </View>
@@ -104,6 +142,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: 'bold'
+  },
+  imageAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    margin: 5
   },
   imageAvatar: {
     width: 32,

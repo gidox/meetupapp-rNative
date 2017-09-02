@@ -3,7 +3,8 @@ import { View } from 'react-native';
 
 import AppNavigation from './AppNavigation';
 import Auth from './src/components/Auth';
-
+import { auth } from './src/config/firebase';
+ 
 export default class App extends React.Component {
   constructor(props){
     super(props);
@@ -12,11 +13,8 @@ export default class App extends React.Component {
     }
   }
   componentWillMount(){
-    setTimeout(() => {
-      this.setState({
-        user: { email: 'yo@email.com'}
-      });
-    }, 3000)
+    auth.onAuthStateChanged(user => this.setState({ user }))
+
   }
   render() {
     return (
